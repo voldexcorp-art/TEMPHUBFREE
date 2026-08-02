@@ -1,0 +1,138 @@
+-- Fake "Temps Practical Basketball Hub" Loader (Prank Script)
+-- Forces overlay on top of EVERY GUI
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Function to create a loading screen that sits on top of everything
+local function createLoadingScreen(name, displayOrder)
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = name
+	screenGui.ResetOnSpawn = false
+	screenGui.IgnoreGuiInset = true
+	screenGui.DisplayOrder = displayOrder or 999999   -- Extremely high so it overlays everything
+	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+	screenGui.Parent = playerGui
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(1, 0, 1, 0)
+	frame.Position = UDim2.new(0, 0, 0, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+	frame.BorderSizePixel = 0
+	frame.ZIndex = 100
+	frame.Parent = screenGui
+
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(0.85, 0, 0.1, 0)
+	title.Position = UDim2.new(0.075, 0, 0.34, 0)
+	title.BackgroundTransparency = 1
+	title.Text = "Temps Practical Basketball Hub"
+	title.TextColor3 = Color3.fromRGB(255, 195, 40)
+	title.TextScaled = true
+	title.Font = Enum.Font.GothamBold
+	title.ZIndex = 101
+	title.Parent = frame
+
+	local status = Instance.new("TextLabel")
+	status.Name = "Status"
+	status.Size = UDim2.new(0.6, 0, 0.05, 0)
+	status.Position = UDim2.new(0.2, 0, 0.47, 0)
+	status.BackgroundTransparency = 1
+	status.Text = "Loading..."
+	status.TextColor3 = Color3.fromRGB(210, 210, 210)
+	status.TextScaled = true
+	status.Font = Enum.Font.Gotham
+	status.ZIndex = 101
+	status.Parent = frame
+
+	local barBG = Instance.new("Frame")
+	barBG.Size = UDim2.new(0.5, 0, 0.028, 0)
+	barBG.Position = UDim2.new(0.25, 0, 0.55, 0)
+	barBG.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+	barBG.BorderSizePixel = 0
+	barBG.ZIndex = 101
+	barBG.Parent = frame
+
+	local barCorner = Instance.new("UICorner")
+	barCorner.CornerRadius = UDim.new(0, 8)
+	barCorner.Parent = barBG
+
+	local bar = Instance.new("Frame")
+	bar.Name = "Bar"
+	bar.Size = UDim2.new(0, 0, 1, 0)
+	bar.BackgroundColor3 = Color3.fromRGB(255, 175, 25)
+	bar.BorderSizePixel = 0
+	bar.ZIndex = 102
+	bar.Parent = barBG
+
+	local barFillCorner = Instance.new("UICorner")
+	barFillCorner.CornerRadius = UDim.new(0, 8)
+	barFillCorner.Parent = bar
+
+	local percent = Instance.new("TextLabel")
+	percent.Name = "Percent"
+	percent.Size = UDim2.new(0.2, 0, 0.04, 0)
+	percent.Position = UDim2.new(0.4, 0, 0.6, 0)
+	percent.BackgroundTransparency = 1
+	percent.Text = "0%"
+	percent.TextColor3 = Color3.fromRGB(180, 180, 180)
+	percent.TextScaled = true
+	percent.Font = Enum.Font.Gotham
+	percent.ZIndex = 101
+	percent.Parent = frame
+
+	return screenGui, bar, status, percent
+end
+
+-- Create the main loading screen (highest priority)
+local mainGui, mainBar, mainStatus, mainPercent = createLoadingScreen("TempsPracticalBasketballHub", 999999)
+
+-- Fake loading animation
+task.spawn(function()
+	local messages = {
+		"Initializing...",
+		"Loading assets...",
+		"Connecting to servers...",
+		"Fetching player data...",
+		"Almost ready..."
+	}
+
+	for i = 1, 100 do
+		mainBar.Size = UDim2.new(i / 100, 0, 1, 0)
+		mainPercent.Text = i .. "%"
+		
+		if i % 20 == 0 then
+			mainStatus.Text = messages[math.clamp(math.floor(i / 20), 1, #messages)]
+		end
+		
+		task.wait(0.028)
+	end
+
+	mainStatus.Text = "Loaded!"
+	mainPercent.Text = "100%"
+	task.wait(0.5)
+
+	mainStatus.Text = "Opening additional modules..."
+	task.wait(0.35)
+
+	-- Spawn 50 more loading screens, each with even higher DisplayOrder so they stack on top
+	for i = 1, 50 do
+		local gui, bar, status, percent = createLoadingScreen("TempsPracticalBasketballHub_" .. i, 1000000 + i)
+		
+		task.spawn(function()
+			for p = 1, 100 do
+				if bar and bar.Parent then
+					bar.Size = UDim2.new(p / 100, 0, 1, 0)
+					percent.Text = p .. "%"
+				end
+				task.wait(0.018)
+			end
+			if status and status.Parent then
+				status.Text = "Ready"
+			end
+		end)
+
+		task.wait(0.04)
+	end
+end)
